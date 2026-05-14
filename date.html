@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<title>选择夜宵日期</title>
+<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="./output.css">
+</head>
+<body>
+<div id="wrapper">
+  <h1 id="headerPrefix"></h1>
+  <h1>
+    <br>
+    <b style="color: #ff9733" id="what"></b>
+  </h1>
+  <input type="button" class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:ml-3 sm:w-auto" value="开始" id="start">
+  <input type="button" class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:ml-3 sm:w-auto" value="停止" id="stop" style="display: none">
+  <input type="button" class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:ml-3 sm:w-auto" value="不行，换一个" id="next" style="display: none">
+  <input type="button" class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:ml-3 sm:w-auto" value="可以，就这个" id="confirm" style="display: none">
+</div>
+<script src="./jquery-3.6.1.min.js"></script>
+<script>
+$(function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const selectedFood = urlParams.get('food') || '夜宵';
+  $('#headerPrefix').html(`夜宵去吃${selectedFood}，哪天去？<br><br>`);
+
+  function getDates() {
+    const today = new Date();
+    const dates = [];
+    for (let i = 0; i < 5; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const month = d.getMonth() + 1;
+      const day = d.getDate();
+      dates.push(`${month}月${day}日`);
+    }
+    return dates;
+  }
+
+  let datesList = getDates();
+  let currentDate = datesList[0];
+  let timer = null;
+
+  function randomDate() {
+    const r = Math.floor(Math.random() * datesList.length);
+    return datesList[r];
+  }
+
+  function showFloatingDate(date) {
+    const rTop = Math.ceil(Math.random() * $(document).height());
+    const rLeft = Math.ceil(Math.random() * ($(document).width() - 50));
+    const rSize = Math.ceil(Math.random() * (37 - 14) + 14);
+    $("<span class='temp'></span>")
+      .html(date)
+      .hide()
+      .css({
+        top: rTop,
+        left: rLeft,
+        color: "rgba(0,0,0,." + Math.random() + ")",
+        fontSize: rSize + "px",
+        position: "absolute",
+        zIndex: 9999
+      })
+      .appendTo("body")
+      .fadeIn("slow", function() {
+        $(this).fadeOut("slow", function() {
+          $(this).remove();
+        });
+      });
+  }
+
+  function updateDisplay(date, withFloat) {
+    $("#what").html(date);
+    if (withFloat !== false) {
+      showFloatingDate(date);
+    }
+  }
+
+  function startSpinning() {
+    if (timer) clearInterval(timer);
+    timer = setInterval(function() {
+      const newDate = randomDate();
+      currentDate = newDate;
+      updateDisplay(newDate, true);
+    }, 50);
+    $("#start").hide();
+    $("#stop").show();
+    $("#next, #confirm").hide();
+  }
+
+  function stopSpinningAndShowButtons() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+    $("#stop").hide();
+    $("#next").show();
+    $("#confirm").show();
+  }
+
+  function restartSpinning() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+    currentDate = randomDate();
+    updateDisplay(currentDate, true);
+    timer = setInterval(function() {
+      const newDate = randomDate();
+      currentDate = newDate;
+      updateDisplay(newDate, true);
+    }, 50);
+    $("#next, #confirm").hide();
+    $("#stop").show();
+  }
+
+  $("#start").click(function() {
+    datesList = getDates();
+    currentDate = datesList[0];
+    startSpinning();
+  });
+
+  $("#stop").click(function() {
+    stopSpinningAndShowButtons();
+  });
+
+  $("#next").click(function() {
+    restartSpinning();
+  });
+
+  $("#confirm").click(function() {
+    if (timer) clearInterval(timer);
+    alert(`这天去吃：${currentDate}`);
+  });
+
+  updateDisplay(currentDate, false);
+});
+</script>
+</body>
+</html>
