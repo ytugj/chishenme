@@ -798,11 +798,11 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-top: -60px;
-  margin-left: -250px;
-  width: 500px;
-  height: 120px;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 500px;
   text-align: center;
+  padding: 20px 0;
 }
 
 #wrapper h1 {
@@ -843,8 +843,9 @@ body {
 
 .temp {
   position: absolute;
-  z-index: -1;
+  z-index: 0;
   color: #777;
+  pointer-events: none;
 }
 
 #popbox {
@@ -957,4 +958,10 @@ body {
   .xl\:hidden {
     display: none;
   }
+}
+
+/* 确保按钮拥有较高层级，显示在浮动文字上方 */
+#start, #stop, #next, #confirm, #easterStop {
+  position: relative;
+  z-index: 10;
 }
