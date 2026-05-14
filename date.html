@@ -23,7 +23,7 @@
 $(function() {
   const urlParams = new URLSearchParams(window.location.search);
   const selectedFood = urlParams.get('food') || '夜宵';
-  $('#headerPrefix').html(`夜宵去吃${selectedFood}，哪天去？<br><br>`);
+  $('#headerPrefix').html(`夜宵带我去吃${selectedFood}，哪天去？<br><br>`);
 
   let timer = null;
   let currentDateObj = null;
