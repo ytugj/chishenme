@@ -15,7 +15,7 @@
   </h1>
   <input type="button" class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:ml-3 sm:w-auto" value="开始" id="start">
   <input type="button" class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:ml-3 sm:w-auto" value="停止" id="stop" style="display: none">
-  <input type="button" class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:ml-3 sm:w-auto" value="不行，换一个" id="next" style="display: none">
+  <input type="button" class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:ml-3 sm:w-auto" value="不行，换一天" id="next" style="display: none">
   <input type="button" class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:ml-3 sm:w-auto" value="可以，就这个" id="confirm" style="display: none">
 </div>
 <script src="./jquery-3.6.1.min.js"></script>
@@ -25,26 +25,36 @@ $(function() {
   const selectedFood = urlParams.get('food') || '夜宵';
   $('#headerPrefix').html(`夜宵去吃${selectedFood}，哪天去？<br><br>`);
 
-  function getDates() {
+  let timer = null;
+  let currentDateObj = null;
+  let changeCount = 0;
+  let isSpinning = false;
+
+  function getDatesToSunday() {
     const today = new Date();
+    const dayOfWeek = today.getDay();
+    let endDay = 7;
+    if (dayOfWeek === 0) endDay = 0;
     const dates = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i <= endDay - dayOfWeek; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
-      const month = d.getMonth() + 1;
-      const day = d.getDate();
-      dates.push(`${month}月${day}日`);
+      dates.push(d);
     }
     return dates;
   }
 
-  let datesList = getDates();
-  let currentDate = datesList[0];
-  let timer = null;
-
-  function randomDate() {
-    const r = Math.floor(Math.random() * datesList.length);
-    return datesList[r];
+  function formatDateText(date) {
+    const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const weekday = weekdays[date.getDay()];
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const diffDays = Math.floor((date - today) / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return `就${weekday}，今天去`;
+    if (diffDays === 1) return `明天${weekday}去`;
+    if (diffDays === 2) return `后天${weekday}去`;
+    if (date.getDay() === 0) return `周日也可以`;
+    return `还是${weekday}去`;
   }
 
   function showFloatingDate(date) {
@@ -52,7 +62,7 @@ $(function() {
     const rLeft = Math.ceil(Math.random() * ($(document).width() - 50));
     const rSize = Math.ceil(Math.random() * (37 - 14) + 14);
     $("<span class='temp'></span>")
-      .html(date)
+      .html(formatDateText(date))
       .hide()
       .css({
         top: rTop,
@@ -70,23 +80,28 @@ $(function() {
       });
   }
 
-  function updateDisplay(date, withFloat) {
-    $("#what").html(date);
+  function updateDisplay(dateObj, withFloat) {
+    const text = formatDateText(dateObj);
+    $("#what").html(text);
+    currentDateObj = dateObj;
     if (withFloat !== false) {
-      showFloatingDate(date);
+      showFloatingDate(dateObj);
     }
   }
 
   function startSpinning() {
     if (timer) clearInterval(timer);
+    const dateList = getDatesToSunday();
+    if (dateList.length === 0) return;
     timer = setInterval(function() {
-      const newDate = randomDate();
-      currentDate = newDate;
+      const idx = Math.floor(Math.random() * dateList.length);
+      const newDate = dateList[idx];
       updateDisplay(newDate, true);
     }, 50);
     $("#start").hide();
     $("#stop").show();
     $("#next, #confirm").hide();
+    isSpinning = true;
   }
 
   function stopSpinningAndShowButtons() {
@@ -97,27 +112,26 @@ $(function() {
     $("#stop").hide();
     $("#next").show();
     $("#confirm").show();
+    isSpinning = false;
   }
 
   function restartSpinning() {
-    if (timer) {
-      clearInterval(timer);
-      timer = null;
-    }
-    currentDate = randomDate();
-    updateDisplay(currentDate, true);
+    if (timer) clearInterval(timer);
+    const dateList = getDatesToSunday();
+    const idx = Math.floor(Math.random() * dateList.length);
+    const newDate = dateList[idx];
+    updateDisplay(newDate, true);
     timer = setInterval(function() {
-      const newDate = randomDate();
-      currentDate = newDate;
-      updateDisplay(newDate, true);
+      const newIdx = Math.floor(Math.random() * dateList.length);
+      const nextDate = dateList[newIdx];
+      updateDisplay(nextDate, true);
     }, 50);
     $("#next, #confirm").hide();
     $("#stop").show();
+    isSpinning = true;
   }
 
   $("#start").click(function() {
-    datesList = getDates();
-    currentDate = datesList[0];
     startSpinning();
   });
 
@@ -126,15 +140,27 @@ $(function() {
   });
 
   $("#next").click(function() {
-    restartSpinning();
+    if (!isSpinning) {
+      changeCount++;
+      if (changeCount > 1) {
+        alert("别换了，就今天");
+        const today = new Date();
+        updateDisplay(today, true);
+        $("#next").hide();
+        return;
+      }
+      restartSpinning();
+    }
   });
 
   $("#confirm").click(function() {
     if (timer) clearInterval(timer);
-    alert(`这天去吃：${currentDate}`);
+    alert(`这天去吃：${formatDateText(currentDateObj)}`);
+    // 可选跳转或关闭
   });
 
-  updateDisplay(currentDate, false);
+  // 自动开始滚动
+  startSpinning();
 });
 </script>
 </body>

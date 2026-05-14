@@ -1,5 +1,5 @@
 $(function() {
-  $("#start, #stop, #next, #confirm").off("click");
+  $("#start, #stop, #confirm").off("click");
 
   let easterEggCount = 0;
   let easterEggTriggered = false;
@@ -56,35 +56,17 @@ $(function() {
     }, 50);
     $("#start").hide();
     $("#stop").show();
-    $("#next, #confirm").hide();
+    $("#confirm").hide();
   }
 
-  function stopSpinningAndShowButtons() {
+  function stopSpinningAndShowConfirm() {
     if (easterEggTriggered) return;
     if (timer) {
       clearInterval(timer);
       timer = null;
     }
     $("#stop").hide();
-    $("#next").show();
     $("#confirm").show();
-  }
-
-  function restartSpinning() {
-    if (easterEggTriggered) return;
-    if (timer) {
-      clearInterval(timer);
-      timer = null;
-    }
-    currentFood = randomFood(foods);
-    updateDisplay(currentFood, true);
-    timer = setInterval(function() {
-      var newFood = randomFood(foods);
-      currentFood = newFood;
-      updateDisplay(newFood, true);
-    }, 50);
-    $("#next, #confirm").hide();
-    $("#stop").show();
   }
 
   function handleEasterEgg() {
@@ -96,7 +78,7 @@ $(function() {
         clearInterval(timer);
         timer = null;
       }
-      $("#start, #stop, #next, #confirm").hide();
+      $("#start, #stop, #confirm").hide();
       $("<input type='button' class='inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 sm:ml-3 sm:w-auto' value='停止' id='easterStop'>").insertAfter("#confirm");
       $("#easterStop").click(function() {
         alert("这么作？今天别吃了！");
@@ -108,7 +90,7 @@ $(function() {
   foods = getFoodList();
   if (foods.length) currentFood = foods[0];
   updateDisplay(currentFood, false);
-  $("#stop, #next, #confirm").hide();
+  $("#stop, #confirm").hide();
   $("#start").show();
 
   $("#start").click(function() {
@@ -126,13 +108,8 @@ $(function() {
     if (easterEggTriggered) return;
     handleEasterEgg();
     if (timer) {
-      stopSpinningAndShowButtons();
+      stopSpinningAndShowConfirm();
     }
-  });
-
-  $("#next").click(function() {
-    if (easterEggTriggered) return;
-    restartSpinning();
   });
 
   $("#confirm").click(function() {

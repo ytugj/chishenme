@@ -816,7 +816,7 @@ body {
 #wrapper h1 b {
   font-weight: 700;
 }
-
+/*
 #start {
   width: 120px;
   height: 40px;
@@ -834,7 +834,7 @@ body {
   font-family: "微软雅黑";
   cursor: pointer;
 }
-
+*/
 #cfg {
   color: #666;
   text-shadow: 1px 1px 1px #eee;
@@ -996,4 +996,39 @@ body {
   background-color: rgb(31 41 55); /* 与 bg-gray-800 一致 */
   position: relative;
   z-index: 20;
+}
+/* 覆盖按钮固定宽度，使 Tailwind 的 w-full 生效，适应移动端 */
+#start, #stop, #next, #confirm, #easterStop {
+  width: auto !important;
+  min-width: 100px;
+  height: auto !important;
+  white-space: normal;
+  word-break: keep-all;
+  background-color: rgb(31 41 55);
+  position: relative;
+  z-index: 20;
+}
+
+/* 移动端进一步优化 */
+@media (max-width: 480px) {
+  #wrapper {
+    width: 95%;
+    padding: 15px 5px;
+  }
+  #start, #stop, #next, #confirm, #easterStop {
+    min-width: 80px;
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+  #wrapper h1 {
+    font-size: 8vw;
+  }
+}
+
+/* 确保背景浮动文字在按钮下方 */
+.temp {
+  position: absolute;
+  z-index: 0;
+  color: #777;
+  pointer-events: none;
 }
