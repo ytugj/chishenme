@@ -90,7 +90,7 @@ $(function() {
   function handleEasterEgg() {
     if (easterEggTriggered) return;
     easterEggCount++;
-    if (easterEggCount >= 6) {
+    if (easterEggCount >= 3) {
       easterEggTriggered = true;
       if (timer) {
         clearInterval(timer);
