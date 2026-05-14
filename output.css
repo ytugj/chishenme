@@ -966,3 +966,34 @@ body {
   position: relative;
   z-index: 10;
 }
+/* 覆盖按钮固定宽度，使Tailwind的w-full生效，适应移动端 */
+#start, #stop, #next, #confirm, #easterStop {
+  width: auto !important;
+  min-width: 100px;
+  height: auto !important;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+/* 移动端进一步优化 */
+@media (max-width: 480px) {
+  #wrapper {
+    width: 95%;
+    padding: 15px 5px;
+  }
+  #start, #stop, #next, #confirm, #easterStop {
+    min-width: 80px;
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+  #wrapper h1 {
+    font-size: 8vw; /* 小屏幕稍微加大可读性 */
+  }
+}
+
+/* 确保按钮始终遮挡背景浮动文字 */
+#start, #stop, #next, #confirm, #easterStop {
+  background-color: rgb(31 41 55); /* 与 bg-gray-800 一致 */
+  position: relative;
+  z-index: 20;
+}
